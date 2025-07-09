@@ -8,3 +8,4 @@ django-filter==25.1
 drf-spectacular==0.28.0
 fcm-django==2.2.1
 django-ratelimit==4.1.0 
+gunicorn
