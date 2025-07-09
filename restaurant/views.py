@@ -472,6 +472,10 @@ def menu_overview(request):
 @permission_classes([AllowAny])
 def register_user(request):
     """Register a new user with enhanced validation and phone verification"""
+    import random
+    from datetime import timedelta
+    from django.utils import timezone
+
     data = request.data
     
     # Validate required fields
@@ -523,24 +527,32 @@ def register_user(request):
             first_name=data.get('first_name', ''),
             last_name=data.get('last_name', '')
         )
+        # Generate phone verification code
+        verification_code = str(random.randint(100000, 999999))
+        expires_at = timezone.now() + timedelta(minutes=10)
+
         
         # Create customer profile
         customer = Customer.objects.create(
             user=user,
             phone=phone,
             address=data.get('address', ''),
-            is_phone_verified=False,  # Will be verified later
-            is_email_verified=False   # Will be verified later
+            is_phone_verified=False,
+            is_email_verified=False,
+            phone_verification_code=verification_code,
+            verification_code_expires_at=expires_at
         )
         
         # Generate verification codes (we'll implement this properly)
         # For now, we'll just return success
+        # TODO: Implement a real SMS sending service here (e.g., Twilio)
+        logger.info(f"Generated phone verification code for {phone}: {verification_code}")
         
         return Response({
-            'message': 'User created successfully',
+            'message': 'User created successfully. Please verify your phone number.',
             'user_id': user.id,
-            'phone_verification_required': True,
-            'email_verification_required': True
+            'phone': phone,
+            'verification_code_for_testing': verification_code # IMPORTANT: Remove in production
         }, status=201)
         
     except Exception as e:

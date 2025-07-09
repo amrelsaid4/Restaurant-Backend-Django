@@ -8528,3 +8528,62 @@ INFO 2025-07-09 10:56:00,504 models 20080 6340 Order saved: #44 - Customer: Amr 
 INFO 2025-07-09 10:56:00,533 basehttp 20080 6340 "PATCH /api/admin/orders/44/update_status/ HTTP/1.1" 200 47
 INFO 2025-07-09 10:56:10,595 models 20080 6340 Order saved: #44 - Customer: Amr Elsayed - Total: $93.99
 INFO 2025-07-09 10:56:10,620 basehttp 20080 6340 "PATCH /api/admin/orders/44/update_status/ HTTP/1.1" 200 47
+INFO 2025-07-09 13:02:11,131 autoreload 4572 13448 Watching for file changes with StatReloader
+INFO 2025-07-09 13:02:12,553 views 4572 13448 Stripe initialized successfully
+INFO 2025-07-09 13:02:17,992 basehttp 4572 6280 "GET /admin/ HTTP/1.1" 200 13673
+INFO 2025-07-09 13:02:18,030 basehttp 4572 6280 "GET /static/admin/css/base.css HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:18,049 basehttp 4572 4960 "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:18,059 basehttp 4572 16020 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:18,059 basehttp 4572 6844 "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:18,061 basehttp 4572 15688 "GET /static/admin/js/theme.js HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:18,082 basehttp 4572 15688 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:18,154 basehttp 4572 6280 "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+INFO 2025-07-09 13:02:18,163 basehttp 4572 15688 "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:18,163 basehttp 4572 6280 "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
+WARNING 2025-07-09 13:02:18,310 log 4572 6280 Not Found: /favicon.ico
+WARNING 2025-07-09 13:02:18,310 basehttp 4572 6280 "GET /favicon.ico HTTP/1.1" 404 9877
+INFO 2025-07-09 13:02:20,498 basehttp 4572 6280 "GET /admin/auth/user/ HTTP/1.1" 200 23370
+INFO 2025-07-09 13:02:20,534 basehttp 4572 6280 "GET /static/admin/css/changelists.css HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,545 basehttp 4572 15688 "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,545 basehttp 4572 6844 "GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,546 basehttp 4572 16020 "GET /static/admin/js/core.js HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,547 basehttp 4572 4960 "GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,551 basehttp 4572 7592 "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,554 basehttp 4572 15688 "GET /static/admin/js/actions.js HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,561 basehttp 4572 16020 "GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,561 basehttp 4572 6844 "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,566 basehttp 4572 15688 "GET /static/admin/img/search.svg HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,569 basehttp 4572 7592 "GET /static/admin/img/icon-yes.svg HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,574 basehttp 4572 7592 "GET /static/admin/img/icon-no.svg HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,579 basehttp 4572 7592 "GET /static/admin/js/filters.js HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,621 basehttp 4572 6280 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-09 13:02:20,679 basehttp 4572 6280 "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,679 basehttp 4572 7592 "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:20,679 basehttp 4572 15688 "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 304 0
+INFO 2025-07-09 13:02:31,587 basehttp 4572 15688 "GET /admin/restaurant/customer/ HTTP/1.1" 200 19409
+INFO 2025-07-09 13:02:31,648 basehttp 4572 15688 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-09 13:02:40,149 basehttp 4572 15688 "GET /admin/auth/user/ HTTP/1.1" 200 23370
+INFO 2025-07-09 13:02:40,201 basehttp 4572 15688 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-09 13:33:37,059 autoreload 4572 13448 C:\Users\CompuTouch\Desktop\restaurant-django\restaurant\views.py changed, reloading.
+INFO 2025-07-09 13:33:42,316 autoreload 18988 2644 Watching for file changes with StatReloader
+INFO 2025-07-09 13:33:43,843 views 18988 2644 Stripe initialized successfully
+INFO 2025-07-09 13:34:10,296 autoreload 18988 2644 C:\Users\CompuTouch\Desktop\restaurant-django\restaurant\views.py changed, reloading.
+INFO 2025-07-09 13:34:12,667 autoreload 19860 10456 Watching for file changes with StatReloader
+INFO 2025-07-09 13:34:14,025 views 19860 10456 Stripe initialized successfully
+INFO 2025-07-09 13:34:24,607 autoreload 19860 10456 C:\Users\CompuTouch\Desktop\restaurant-django\restaurant\views.py changed, reloading.
+INFO 2025-07-09 13:34:27,544 autoreload 15468 22084 Watching for file changes with StatReloader
+INFO 2025-07-09 13:34:28,967 views 15468 22084 Stripe initialized successfully
+INFO 2025-07-09 13:34:39,444 autoreload 15468 22084 C:\Users\CompuTouch\Desktop\restaurant-django\restaurant\views.py changed, reloading.
+INFO 2025-07-09 13:34:41,887 autoreload 21584 20184 Watching for file changes with StatReloader
+INFO 2025-07-09 13:34:43,229 views 21584 20184 Stripe initialized successfully
+INFO 2025-07-09 13:34:54,155 autoreload 21584 20184 C:\Users\CompuTouch\Desktop\restaurant-django\restaurant\views.py changed, reloading.
+INFO 2025-07-09 13:34:56,650 autoreload 4628 9848 Watching for file changes with StatReloader
+INFO 2025-07-09 13:35:04,229 autoreload 4628 9848 C:\Users\CompuTouch\Desktop\restaurant-django\restaurant\views.py changed, reloading.
+INFO 2025-07-09 13:35:05,792 autoreload 8576 22304 Watching for file changes with StatReloader
+INFO 2025-07-09 13:35:08,106 views 8576 22304 Stripe initialized successfully
+INFO 2025-07-09 13:35:17,511 autoreload 8576 22304 C:\Users\CompuTouch\Desktop\restaurant-django\restaurant\views.py changed, reloading.
+INFO 2025-07-09 13:35:20,301 autoreload 16184 2220 Watching for file changes with StatReloader
+INFO 2025-07-09 13:35:22,626 views 16184 2220 Stripe initialized successfully
+INFO 2025-07-09 13:35:24,964 autoreload 16184 2220 C:\Users\CompuTouch\Desktop\restaurant-django\restaurant\views.py changed, reloading.
+INFO 2025-07-09 13:35:26,730 autoreload 10532 21344 Watching for file changes with StatReloader
+INFO 2025-07-09 13:35:28,025 views 10532 21344 Stripe initialized successfully
