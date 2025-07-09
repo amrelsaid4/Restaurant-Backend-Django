@@ -54,6 +54,7 @@ urlpatterns = [
     path('api/homepage-stats/', views.homepage_stats, name='homepage-stats'),
     path('api/register/', views.register_user, name='register'),
     path('api/send-verification/', views.send_verification_code, name='send-verification'),
+    path('api/resend-verify-code/', views.send_verification_code, name='resend-verify-code'),
     path('api/verify-code/', views.verify_code, name='verify-code'),
     path('api/login/', views.customer_login, name='customer-login'),
     path('api/logout/', views.user_logout, name='user-logout'),

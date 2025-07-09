@@ -32,6 +32,8 @@ from .utils import (
     calculate_daily_analytics, invalidate_dish_cache, send_notification_to_admins
 )
 from django.db.models import Count, Avg, Sum
+from django.core.cache import cache
+from django.contrib.auth.hashers import make_password
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -471,95 +473,69 @@ def menu_overview(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
-    """Register a new user with enhanced validation and phone verification"""
+    """
+    Step 1 of registration: Validate data, generate verification code,
+    and cache user data without creating a user yet.
+    """
     import random
-    from datetime import timedelta
-    from django.utils import timezone
-
+    
     data = request.data
     
-    # Validate required fields
+    # --- Data Validation ---
     required_fields = ['username', 'email', 'password', 'first_name', 'last_name', 'phone']
     missing_fields = [field for field in required_fields if not data.get(field)]
     if missing_fields:
-        return Response({
-            'error': f'Missing required fields: {", ".join(missing_fields)}'
-        }, status=400)
+        return Response({'error': f'Missing fields: {", ".join(missing_fields)}'}, status=400)
     
-    # Check if username exists
     if User.objects.filter(username=data.get('username')).exists():
-        return Response({
-            'error': 'Username already exists. Please choose a different username.'
-        }, status=400)
+        return Response({'error': 'Username already exists.'}, status=400)
     
-    # Check if email exists
     if User.objects.filter(email=data.get('email')).exists():
-        return Response({
-            'error': 'Email already exists. Please use a different email address.'
-        }, status=400)
+        return Response({'error': 'Email already exists.'}, status=400)
     
-    # Check if phone exists
-    if Customer.objects.filter(phone=data.get('phone')).exists():
-        return Response({
-            'error': 'Phone number already exists. Please use a different phone number.'
-        }, status=400)
-    
-    # Validate phone number (basic validation)
     phone = data.get('phone')
-    if not phone.isdigit() or len(phone) < 10:
-        return Response({
-            'error': 'Invalid phone number. Please enter a valid phone number.'
-        }, status=400)
+    if Customer.objects.filter(phone=phone).exists():
+        return Response({'error': 'Phone number already exists.'}, status=400)
     
-    # Validate password strength
+    if not phone.isdigit() or len(phone) < 10:
+        return Response({'error': 'Invalid phone number.'}, status=400)
+    
     password = data.get('password')
     if len(password) < 8:
-        return Response({
-            'error': 'Password must be at least 8 characters long.'
-        }, status=400)
-    
-    try:
-        # Create user
-        user = User.objects.create_user(
-            username=data.get('username'),
-            email=data.get('email'),
-            password=password,
-            first_name=data.get('first_name', ''),
-            last_name=data.get('last_name', '')
-        )
-        # Generate phone verification code
-        verification_code = str(random.randint(100000, 999999))
-        expires_at = timezone.now() + timedelta(minutes=10)
+        return Response({'error': 'Password must be at least 8 characters long.'}, status=400)
 
+    # --- Generate Code and Cache Data ---
+    try:
+        verification_code = str(random.randint(100000, 999999))
         
-        # Create customer profile
-        customer = Customer.objects.create(
-            user=user,
-            phone=phone,
-            address=data.get('address', ''),
-            is_phone_verified=False,
-            is_email_verified=False,
-            phone_verification_code=verification_code,
-            verification_code_expires_at=expires_at
-        )
+        # Store all registration data in cache for 10 minutes
+        user_data_to_cache = {
+            'username': data.get('username'),
+            'email': data.get('email'),
+            'password': make_password(password), # Hash password before caching
+            'first_name': data.get('first_name', ''),
+            'last_name': data.get('last_name', ''),
+            'phone': phone,
+            'address': data.get('address', ''),
+            'verification_code': verification_code
+        }
         
-        # Generate verification codes (we'll implement this properly)
-        # For now, we'll just return success
+        cache_key = f"user_registration_{phone}"
+        cache.set(cache_key, user_data_to_cache, timeout=600) # Timeout 10 minutes
+        
+        # --- Send Verification Code (Simulated) ---
         # TODO: Implement a real SMS sending service here (e.g., Twilio)
         logger.info(f"Generated phone verification code for {phone}: {verification_code}")
         
         return Response({
-            'message': 'User created successfully. Please verify your phone number.',
-            'user_id': user.id,
+            'message': 'Verification code sent to your phone number.',
             'phone': phone,
             'verification_code_for_testing': verification_code # IMPORTANT: Remove in production
-        }, status=201)
+        }, status=200)
         
     except Exception as e:
-        logger.error(f"Error creating user: {e}")
-        return Response({
-            'error': 'Failed to create user. Please try again.'
-        }, status=500)
+        logger.error(f"Error during registration step 1: {e}")
+        return Response({'error': 'An unexpected error occurred. Please try again.'}, status=500)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -617,60 +593,62 @@ def send_verification_code(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def verify_code(request):
-    """Verify phone or email verification code"""
-    from django.utils import timezone
-    
+    """
+    Step 2 of registration: Verify code and create the user if valid.
+    """
     data = request.data
-    verification_type = data.get('type')  # 'phone' or 'email'
-    identifier = data.get('identifier')  # phone number or email
-    code = data.get('code')
+    phone = data.get('phone')
+    submitted_code = data.get('code')
     
-    if verification_type not in ['phone', 'email']:
-        return Response({'error': 'Invalid verification type'}, status=400)
+    if not phone or not submitted_code:
+        return Response({'error': 'Phone number and code are required.'}, status=400)
+        
+    cache_key = f"user_registration_{phone}"
+    cached_data = cache.get(cache_key)
     
-    if not code or len(code) != 6:
-        return Response({'error': 'Invalid verification code'}, status=400)
-    
+    if not cached_data:
+        return Response({'error': 'Verification code has expired or is invalid. Please try registering again.'}, status=404)
+        
+    if cached_data.get('verification_code') != submitted_code:
+        return Response({'error': 'The verification code is incorrect.'}, status=400)
+        
+    # --- Code is valid, create user ---
     try:
-        # Find customer by phone or email
-        if verification_type == 'phone':
-            customer = Customer.objects.get(phone=identifier)
-            stored_code = customer.phone_verification_code
-        else:
-            customer = Customer.objects.get(user__email=identifier)
-            stored_code = customer.email_verification_code
+        user = User.objects.create(
+            username=cached_data['username'],
+            email=cached_data['email'],
+            password=cached_data['password'], # Use the pre-hashed password
+            first_name=cached_data['first_name'],
+            last_name=cached_data['last_name']
+        )
         
-        # Check if code matches and hasn't expired
-        if not stored_code:
-            return Response({'error': 'No verification code found'}, status=400)
+        customer = Customer.objects.create(
+            user=user,
+            phone=cached_data['phone'],
+            address=cached_data['address'],
+            is_phone_verified=True, # Verified!
+            is_email_verified=False # Can be verified later
+        )
         
-        if stored_code != code:
-            return Response({'error': 'Invalid verification code'}, status=400)
+        # Clean up the cache
+        cache.delete(cache_key)
         
-        if customer.verification_code_expires_at and customer.verification_code_expires_at < timezone.now():
-            return Response({'error': 'Verification code has expired'}, status=400)
+        # Log the user in and get token (assuming you have a token system)
+        # This part might need adjustment based on your auth setup (e.g., Simple JWT)
+        login(request, user)
         
-        # Mark as verified and clear verification code
-        if verification_type == 'phone':
-            customer.is_phone_verified = True
-            customer.phone_verification_code = None
-        else:
-            customer.is_email_verified = True
-            customer.email_verification_code = None
-        
-        customer.verification_code_expires_at = None
-        customer.save()
-        
+        # For now, just return success. A real app would return an auth token.
         return Response({
-            'message': f'{verification_type.capitalize()} verified successfully',
-            'verified': True
-        })
-        
-    except Customer.DoesNotExist:
-        return Response({'error': 'Customer not found'}, status=404)
+            'message': 'User verified and created successfully!',
+            'user_id': user.id,
+            'username': user.username
+        }, status=201)
+
     except Exception as e:
-        logger.error(f"Error verifying code: {e}")
-        return Response({'error': 'Failed to verify code'}, status=500)
+        logger.error(f"Error creating user after verification: {e}")
+        # Attempt to delete the partially created user to avoid dangling data
+        User.objects.filter(username=cached_data['username']).delete()
+        return Response({'error': 'Failed to create user account after verification.'}, status=500)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
