@@ -540,55 +540,47 @@ def register_user(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def send_verification_code(request):
-    """Send verification code to phone or email"""
+    """
+    Resends a verification code during registration by updating the code in the cache.
+    This does NOT query the database for a customer.
+    """
     import random
-    from datetime import datetime, timedelta
-    from django.utils import timezone
     
     data = request.data
-    verification_type = data.get('type')  # 'phone' or 'email'
-    identifier = data.get('identifier')  # phone number or email
+    phone = data.get('identifier') # The frontend sends phone number as 'identifier'
     
-    if verification_type not in ['phone', 'email']:
-        return Response({'error': 'Invalid verification type'}, status=400)
+    if not phone:
+        return Response({'error': 'Phone number is required.'}, status=400)
+
+    cache_key = f"user_registration_{phone}"
+    cached_data = cache.get(cache_key)
     
+    if not cached_data:
+        return Response({
+            'error': 'No active registration found for this phone number. Please start over.'
+        }, status=404)
+        
     try:
-        # Find customer by phone or email
-        if verification_type == 'phone':
-            customer = Customer.objects.get(phone=identifier)
-        else:
-            customer = Customer.objects.get(user__email=identifier)
+        # Generate a new code and update it in the cache
+        new_verification_code = str(random.randint(100000, 999999))
+        cached_data['verification_code'] = new_verification_code
         
-        # Generate 6-digit verification code
-        verification_code = str(random.randint(100000, 999999))
+        # Reset the cache with the new code, maintaining the original timeout
+        cache.set(cache_key, cached_data, timeout=600)
         
-        # Set expiration time (10 minutes from now)
-        expires_at = timezone.now() + timedelta(minutes=10)
-        
-        # Update customer with verification code
-        if verification_type == 'phone':
-            customer.phone_verification_code = verification_code
-        else:
-            customer.email_verification_code = verification_code
-        
-        customer.verification_code_expires_at = expires_at
-        customer.save()
-        
-        # TODO: In production, send actual SMS/email
-        # For now, we'll return the code for testing
-        logger.info(f"Verification code for {identifier}: {verification_code}")
+        # --- Send Verification Code (Simulated) ---
+        # TODO: Implement a real SMS sending service here (e.g., Twilio)
+        logger.info(f"Resent verification code for {phone}: {new_verification_code}")
         
         return Response({
-            'message': f'Verification code sent to {verification_type}',
-            'code': verification_code,  # Remove this in production
-            'expires_in_minutes': 10
-        })
+            'message': 'A new verification code has been sent.',
+            'phone': phone,
+            'verification_code_for_testing': new_verification_code # IMPORTANT: Remove in production
+        }, status=200)
         
-    except Customer.DoesNotExist:
-        return Response({'error': 'Customer not found'}, status=404)
     except Exception as e:
-        logger.error(f"Error sending verification code: {e}")
-        return Response({'error': 'Failed to send verification code'}, status=500)
+        logger.error(f"Error resending verification code: {e}")
+        return Response({'error': 'Failed to resend verification code.'}, status=500)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
