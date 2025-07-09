@@ -1,0 +1,18 @@
+commit aab33d7a6dd3854be80a76b17223db19fef054a2
+Author: amrelsaid4 <amrelsaid6288@gmail.com>
+Date:   Sun Jun 29 01:38:37 2025 +0300
+
+    �️ Initial secure restaurant management system
+    
+    Features:
+    ✅ Django REST API backend
+    ✅ React frontend with modern UI
+    ✅ Secure Stripe payment integration
+    ✅ Environment variables for sensitive data
+    ✅ Complete restaurant management system
+    ✅ Customer ordering and admin dashboard
+    
+    Security:
+    � All API keys stored in environment variables
+    � No secrets committed to version control
+    �� CSRF protection and secure sessions
