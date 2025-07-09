@@ -580,10 +580,11 @@ def send_verification_code(request):
                 'phone': phone
             }, status=200)
         else:
-            logger.error(f"Failed to send SMS verification code to {phone}")
+            logger.error(f"Failed to send SMS to {phone}. Check Twilio credentials and configuration.")
+            # Return a more specific error instead of a generic 500
             return Response({
-                'error': 'Failed to send verification code. Please try again later.'
-            }, status=500)
+                'error': 'The SMS service is currently unavailable. Please try again later.'
+            }, status=status.HTTP_400_BAD_REQUEST)
         
     except Exception as e:
         logger.error(f"Error resending verification code: {e}")
