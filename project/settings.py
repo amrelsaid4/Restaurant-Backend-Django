@@ -23,7 +23,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-this-key-for-develo
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ["restaurant-backend-django-production.up.railway.app", "127.0.0.1", "localhost", "0.0.0.0"]
 
 # Application definition
 INSTALLED_APPS = [
