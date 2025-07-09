@@ -269,6 +269,46 @@ def validate_order_items(items):
     
     return errors 
 
+# ===== SMS UTILITIES =====
+
+def send_sms(phone_number, message):
+    """
+    Sends an SMS message using Twilio.
+    """
+    from django.conf import settings
+    from twilio.rest import Client
+    from twilio.base.exceptions import TwilioRestException
+
+    account_sid = settings.TWILIO_ACCOUNT_SID
+    auth_token = settings.TWILIO_AUTH_TOKEN
+    twilio_phone_number = settings.TWILIO_PHONE_NUMBER
+
+    if not all([account_sid, auth_token, twilio_phone_number]):
+        logger.error("Twilio credentials are not configured in settings.")
+        return False
+
+    client = Client(account_sid, auth_token)
+
+    try:
+        # Make sure the phone number is in E.164 format
+        if not phone_number.startswith('+'):
+             # Assuming country code is +20 for Egypt if not provided
+            phone_number = f"+20{phone_number}"
+
+        message = client.messages.create(
+            body=message,
+            from_=twilio_phone_number,
+            to=phone_number
+        )
+        logger.info(f"SMS sent to {phone_number} with SID: {message.sid}")
+        return True
+    except TwilioRestException as e:
+        logger.error(f"Error sending SMS to {phone_number}: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"An unexpected error occurred while sending SMS: {e}")
+        return False
+
 class SessionDebugMiddleware(MiddlewareMixin):
     """Debug middleware for session handling"""
     

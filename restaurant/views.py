@@ -29,7 +29,8 @@ from .serializers import (
 from .filters import DishFilter, CategoryFilter, OrderFilter, DishRatingFilter
 from .utils import (
     get_popular_dishes, send_order_notifications, send_stock_alert,
-    calculate_daily_analytics, invalidate_dish_cache, send_notification_to_admins
+    calculate_daily_analytics, invalidate_dish_cache, send_notification_to_admins,
+    send_sms
 )
 from django.db.models import Count, Avg, Sum
 from django.core.cache import cache
@@ -568,15 +569,21 @@ def send_verification_code(request):
         # Reset the cache with the new code, maintaining the original timeout
         cache.set(cache_key, cached_data, timeout=600)
         
-        # --- Send Verification Code (Simulated) ---
-        # TODO: Implement a real SMS sending service here (e.g., Twilio)
-        logger.info(f"Resent verification code for {phone}: {new_verification_code}")
-        
-        return Response({
-            'message': 'A new verification code has been sent.',
-            'phone': phone,
-            'verification_code_for_testing': new_verification_code # IMPORTANT: Remove in production
-        }, status=200)
+        # --- Send Verification Code via SMS ---
+        message = f"Your verification code is: {new_verification_code}"
+        sms_sent = send_sms(phone, message)
+
+        if sms_sent:
+            logger.info(f"Verification code sent via SMS to {phone}")
+            return Response({
+                'message': 'A new verification code has been sent to your phone.',
+                'phone': phone
+            }, status=200)
+        else:
+            logger.error(f"Failed to send SMS verification code to {phone}")
+            return Response({
+                'error': 'Failed to send verification code. Please try again later.'
+            }, status=500)
         
     except Exception as e:
         logger.error(f"Error resending verification code: {e}")
