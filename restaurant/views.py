@@ -317,7 +317,7 @@ class DishRatingViewSet(viewsets.ModelViewSet):
 class AdminCategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [AllowAny]  # Temporarily allow any for testing
+    permission_classes = [IsRestaurantAdmin]
 
     def update(self, request, *args, **kwargs):
         kwargs['partial'] = True
@@ -325,7 +325,7 @@ class AdminCategoryViewSet(viewsets.ModelViewSet):
 
 class AdminDishViewSet(viewsets.ModelViewSet):
     queryset = Dish.objects.all()
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsRestaurantAdmin]
     parser_classes = (MultiPartParser, FormParser)
 
     def get_serializer_class(self):
@@ -402,7 +402,7 @@ class AdminDishViewSet(viewsets.ModelViewSet):
 class AdminOrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [AllowAny]  # Temporarily allow any for testing
+    permission_classes = [IsRestaurantAdmin]
     
     @action(detail=False, methods=['get'])
     def stats(self, request):
@@ -449,7 +449,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
 class AdminCustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
-    permission_classes = [AllowAny]  # Temporarily allow any for testing
+    permission_classes = [IsRestaurantAdmin]
     
     @action(detail=False, methods=['get'])
     def stats(self, request):
@@ -475,7 +475,7 @@ class ContactMessageViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = ContactMessage.objects.all()
     serializer_class = ContactMessageSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsRestaurantAdmin]
 
 
 # ========================================
