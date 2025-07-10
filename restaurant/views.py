@@ -24,7 +24,7 @@ from django.shortcuts import redirect
 
 from .models import (
     Category, Dish, Customer, Order, OrderItem, DishRating, 
-    Restaurant, AdminProfile, Notification, OrderAnalytics
+    Restaurant, AdminProfile, Notification, OrderAnalytics, ContactMessage
 )
 from .serializers import (
     CategorySerializer, DishSerializer, CustomerSerializer,
@@ -33,11 +33,6 @@ from .serializers import (
     OrderAnalyticsSerializer, EnhancedOrderCreateSerializer
 )
 from .filters import DishFilter, CategoryFilter, OrderFilter, DishRatingFilter
-from .utils import (
-    get_popular_dishes, send_order_notifications, send_stock_alert,
-    calculate_daily_analytics, invalidate_dish_cache, send_notification_to_admins,
-    send_verification_email
-)
 from django.db.models import Count, Avg, Sum
 from django.core.cache import cache
 from django.contrib.auth.hashers import make_password
@@ -454,6 +449,17 @@ class AdminRestaurantViewSet(viewsets.ModelViewSet):
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
     permission_classes = [IsRestaurantAdmin]
+
+
+class ContactMessageViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint for admins to view contact messages.
+    Provides `list` and `retrieve` actions.
+    """
+    queryset = ContactMessage.objects.all()
+    serializer_class = ContactMessageSerializer
+    permission_classes = [IsAdminUser]
+
 
 # ========================================
 # 🌟 PUBLIC API FUNCTIONS

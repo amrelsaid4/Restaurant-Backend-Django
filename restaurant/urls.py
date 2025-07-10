@@ -42,6 +42,7 @@ admin_router.register(r'orders', views.AdminOrderViewSet, basename='admin-order'
 admin_router.register(r'customers', views.AdminCustomerViewSet, basename='admin-customer')
 admin_router.register(r'restaurants', views.AdminRestaurantViewSet, basename='admin-restaurant')
 admin_router.register(r'analytics', views.OrderAnalyticsViewSet, basename='admin-analytics')
+admin_router.register(r'messages', views.ContactMessageViewSet, basename='admin-contact-message')
 
 urlpatterns = [
     # 🏠 Root path
