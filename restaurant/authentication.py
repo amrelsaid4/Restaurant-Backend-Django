@@ -1,51 +1,68 @@
-from django.contrib.auth import get_user_model
 from django.contrib.sessions.models import Session
+from django.utils import timezone
 from rest_framework import authentication, exceptions
+from .models import Customer
+from django.contrib.auth.models import User
 import logging
 
 logger = logging.getLogger(__name__)
-User = get_user_model()
 
-class SessionKeyAuthentication(authentication.BaseAuthentication):
-    """
-    Custom authentication class to authenticate users using a session key
-    passed in the 'X-Session-Key' header.
-    """
+class SessionAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
         session_key = request.headers.get('X-Session-Key')
-
         if not session_key:
             return None
 
         try:
-            session = Session.objects.get(session_key=session_key)
+            session = Session.objects.get(session_key=session_key, expire_date__gte=timezone.now())
             session_data = session.get_decoded()
-            user_id = session_data.get('_auth_user_id')
 
-            if not user_id:
-                logger.warning(f"No user_id found in session data for key {session_key[:6]}...")
-                return None
+            admin_user_id = session_data.get('admin_user_id')
+            if admin_user_id:
+                try:
+                    user = User.objects.get(pk=admin_user_id)
+                    # For admin users, the user object itself is returned.
+                    # The IsRestaurantAdmin permission class will check the profile.
+                    return (user, None)
+                except User.DoesNotExist:
+                    logger.warning(f"Admin user with ID {admin_user_id} not found for session {session_key}")
+                    raise exceptions.AuthenticationFailed('Invalid admin session: User not found.')
 
-            user = User.objects.get(id=user_id)
+            customer_uid = session_data.get('uid')
+            if customer_uid:
+                try:
+                    customer = Customer.objects.get(pk=customer_uid)
+                    # For customers, the customer object is returned.
+                    return (customer, None)
+                except Customer.DoesNotExist:
+                    logger.warning(f"Customer with ID {customer_uid} not found for session {session_key}")
+                    raise exceptions.AuthenticationFailed('Invalid customer session: Customer not found.')
             
-        except Session.DoesNotExist:
-            # This is not necessarily an error, just an invalid session.
-            # Raising an exception would cause a 403 error for any invalid key,
-            # which might not be desirable. Returning None lets other auth methods try.
-            logger.info(f"Session with key {session_key[:6]}... is invalid or expired.")
+            # If neither an admin nor a customer user ID is found in the session.
+            logger.warning(f"Session {session_key[:6]}... is valid but contains no user identifier ('admin_user_id' or 'uid').")
             return None
-        except User.DoesNotExist:
-            logger.error(f"User with id {user_id} from session does not exist.")
-            # This is a server error, but from a client perspective, it's an auth failure.
-            raise exceptions.AuthenticationFailed('User for session not found.')
+
+        except Session.DoesNotExist:
+            logger.info(f"Session key {session_key[:6]}... not found in database or expired. Request will be treated as anonymous.")
+            return None
         except Exception as e:
-            logger.error(f"An unexpected error occurred during session authentication: {e}")
-            raise exceptions.AuthenticationFailed('Session authentication failed due to a server error.')
+            logger.error(f"An unexpected error occurred during authentication for session key {session_key[:6]}...: {e}", exc_info=True)
+            raise exceptions.AuthenticationFailed('An unexpected server error occurred during authentication.')
 
-        # If we get here, authentication was successful.
-        # Set the user on the request for other parts of Django/DRF to use.
-        request.user = user
-        return (user, None)
 
-    def authenticate_header(self, request):
-        return 'Session' 
+class CustomerAuthentication(authentication.BaseAuthentication):
+    def authenticate(self, request):
+        session_key = request.headers.get('X-Session-Key')
+        if not session_key:
+            return None
+
+        try:
+            session = Session.objects.get(session_key=session_key, expire_date__gte=timezone.now())
+            uid = session.get_decoded().get('uid')
+            if not uid:
+                return None
+            
+            customer = Customer.objects.get(pk=uid)
+            return (customer, None)
+        except (Session.DoesNotExist, Customer.DoesNotExist):
+            return None 
