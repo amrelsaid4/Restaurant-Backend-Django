@@ -17,7 +17,8 @@ class SessionAuthentication(authentication.BaseAuthentication):
             session = Session.objects.get(session_key=session_key, expire_date__gte=timezone.now())
             session_data = session.get_decoded()
 
-            admin_user_id = session_data.get('admin_user_id')
+            # Django's default session key for user ID is '_auth_user_id'
+            admin_user_id = session_data.get('_auth_user_id')
             if admin_user_id:
                 try:
                     user = User.objects.get(pk=admin_user_id)
@@ -39,7 +40,7 @@ class SessionAuthentication(authentication.BaseAuthentication):
                     raise exceptions.AuthenticationFailed('Invalid customer session: Customer not found.')
             
             # If neither an admin nor a customer user ID is found in the session.
-            logger.warning(f"Session {session_key[:6]}... is valid but contains no user identifier ('admin_user_id' or 'uid').")
+            logger.warning(f"Session {session_key[:6]}... is valid but contains no user identifier ('_auth_user_id' or 'uid').")
             return None
 
         except Session.DoesNotExist:
