@@ -588,7 +588,33 @@ def verify_email(request, uidb64, token):
         return redirect(f"{frontend_url}/invalid-verification-link")
 
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def resend_verification_email(request):
+    """
+    Resends the verification email to a user who has not yet activated their account.
+    """
+    email = request.data.get('email')
+    if not email:
+        return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        # Don't reveal that the user does not exist
+        return Response({'message': 'If an account with that email exists, a new verification link has been sent.'}, status=status.HTTP_200_OK)
+
+    if user.is_active:
+        return Response({'message': 'This account has already been activated.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Resend the verification email
+    email_sent = send_verification_email(user, request._request)
+    if email_sent:
+        logger.info(f"Verification email resent to {user.email}")
+        return Response({'message': 'A new verification link has been sent to your email.'}, status=status.HTTP_200_OK)
+    else:
+        logger.error(f"Failed to resend verification email to {user.email}")
+        return Response({'error': 'Failed to send verification email. Please try again later.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])

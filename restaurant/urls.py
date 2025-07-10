@@ -45,6 +45,7 @@ urlpatterns = [
     path('api/homepage-stats/', views.homepage_stats, name='homepage-stats'),
     path('api/register/', views.register_user, name='register'),
     path('api/verify-email/<uidb64>/<token>/', views.verify_email, name='verify-email'),
+    path('api/resend-verification-email/', views.resend_verification_email, name='resend-verification-email'),
     path('api/login/', views.customer_login, name='customer-login'),
     path('api/logout/', views.user_logout, name='user-logout'),
     path('api/profile/', views.user_profile, name='profile'),

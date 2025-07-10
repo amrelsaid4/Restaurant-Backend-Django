@@ -51,9 +51,12 @@ Please click the link below to activate your account:
 {verification_url}
 
 If you did not register, please ignore this email.
+
+Best regards,
+Restaurant Team
 """
     
-    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', settings.EMAIL_HOST_USER)
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'webmaster@localhost')
 
     try:
         send_mail(
@@ -63,7 +66,15 @@ If you did not register, please ignore this email.
             [user.email],
             fail_silently=False,
         )
-        logger.info(f"Verification email sent to {user.email}")
+        
+        # Check if using console backend
+        email_backend = getattr(settings, 'EMAIL_BACKEND', '')
+        if 'console' in email_backend:
+            logger.info(f"Verification email sent to console for {user.email} (development mode)")
+            logger.info(f"Verification URL: {verification_url}")
+        else:
+            logger.info(f"Verification email sent to {user.email}")
+        
         return True
     except Exception as e:
         logger.error(f"Failed to send verification email to {user.email}: {e}")
