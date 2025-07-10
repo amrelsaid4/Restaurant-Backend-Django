@@ -95,7 +95,7 @@ class AdminDishSerializer(serializers.ModelSerializer):
     especially for file uploads, without the complex read-only fields of the main serializer.
     """
     category = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(), source='category'
+        queryset=Category.objects.all()
     )
 
     class Meta:
