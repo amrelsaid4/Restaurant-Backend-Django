@@ -8606,3 +8606,38 @@ INFO 2025-07-10 08:32:35,791 views 16196 15328 Stripe initialized successfully
 INFO 2025-07-10 08:32:48,504 views 22612 13440 Stripe initialized successfully
 INFO 2025-07-10 08:48:34,405 views 8680 14928 Stripe initialized successfully
 INFO 2025-07-10 08:48:44,656 views 15056 20880 Stripe initialized successfully
+INFO 2025-07-10 11:18:27,704 autoreload 6632 22132 Watching for file changes with StatReloader
+INFO 2025-07-10 11:18:31,207 views 6632 22132 Stripe initialized successfully
+INFO 2025-07-10 11:18:45,862 autoreload 2712 5084 Watching for file changes with StatReloader
+INFO 2025-07-10 11:18:49,001 views 2712 5084 Stripe initialized successfully
+INFO 2025-07-10 11:18:50,064 basehttp 2712 15648 "GET /admin/ HTTP/1.1" 200 14235
+INFO 2025-07-10 11:18:50,096 basehttp 2712 5460 "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:50,096 basehttp 2712 15648 "GET /static/admin/js/theme.js HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:50,097 basehttp 2712 3044 "GET /static/admin/css/base.css HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:50,206 basehttp 2712 3044 "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:50,213 basehttp 2712 5460 "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:50,215 basehttp 2712 3044 "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:50,241 basehttp 2712 3044 "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:50,242 basehttp 2712 5460 "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
+WARNING 2025-07-10 11:18:50,497 log 2712 5460 Not Found: /favicon.ico
+WARNING 2025-07-10 11:18:50,498 basehttp 2712 5460 "GET /favicon.ico HTTP/1.1" 404 10197
+INFO 2025-07-10 11:18:54,759 basehttp 2712 5460 "GET /admin/restaurant/dish/ HTTP/1.1" 200 31254
+INFO 2025-07-10 11:18:54,814 basehttp 2712 5460 "GET /static/admin/css/changelists.css HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:54,861 basehttp 2712 21032 "GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:54,864 basehttp 2712 15648 "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:54,867 basehttp 2712 14064 "GET /static/admin/js/core.js HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:54,874 basehttp 2712 22036 "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:54,887 basehttp 2712 21032 "GET /static/admin/js/actions.js HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:54,897 basehttp 2712 14064 "GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:54,898 basehttp 2712 15648 "GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:54,904 basehttp 2712 22036 "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:54,914 basehttp 2712 21032 "GET /static/admin/img/search.svg HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:54,921 basehttp 2712 22036 "GET /static/admin/img/icon-no.svg HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:55,068 basehttp 2712 3044 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2025-07-10 11:18:55,075 basehttp 2712 3044 "GET /static/admin/js/filters.js HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:55,081 basehttp 2712 3044 "GET /static/admin/img/icon-yes.svg HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:55,166 basehttp 2712 5460 "GET /static/admin/css/forms.css HTTP/1.1" 200 8525
+INFO 2025-07-10 11:18:55,199 basehttp 2712 5460 "GET /static/admin/css/widgets.css HTTP/1.1" 200 11991
+INFO 2025-07-10 11:18:55,332 basehttp 2712 5460 "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:55,334 basehttp 2712 3044 "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 304 0
+INFO 2025-07-10 11:18:55,341 basehttp 2712 3044 "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 304 0

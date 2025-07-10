@@ -40,7 +40,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 from .serializers import ContactMessageSerializer
-from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -326,7 +326,7 @@ class AdminCategoryViewSet(viewsets.ModelViewSet):
 class AdminDishViewSet(viewsets.ModelViewSet):
     queryset = Dish.objects.all()
     permission_classes = [IsRestaurantAdmin]
-    parser_classes = (MultiPartParser, FormParser, JSONParser)
+    parser_classes = (MultiPartParser, FormParser)
 
     def get_serializer_class(self):
         """
