@@ -146,10 +146,17 @@ SPECTACULAR_SETTINGS = {
 # CORS Configuration
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
+    "https://restaurant-backend-django-production.up.railway.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174", 
+    "http://localhost:5175",
+    "http://127.0.0.1:5175",
+    "http://localhost:5176",
+    "http://127.0.0.1:5176",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -183,12 +190,11 @@ CORS_EXPOSE_HEADERS = [
 
 # CSRF Configuration
 CSRF_TRUSTED_ORIGINS = [
+    "https://restaurant-backend-django-production.up.railway.app",
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    # Add your production frontend URL here
-    "https://your-frontend-app-url.com",
 ]
 
 CSRF_COOKIE_SECURE = False

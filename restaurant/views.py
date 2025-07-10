@@ -36,12 +36,12 @@ from .filters import DishFilter, CategoryFilter, OrderFilter, DishRatingFilter
 from .utils import (
     get_popular_dishes, send_order_notifications, send_stock_alert,
     calculate_daily_analytics, invalidate_dish_cache, send_notification_to_admins,
-    send_sms, send_verification_email
+    send_verification_email
 )
 from django.db.models import Count, Avg, Sum
 from django.core.cache import cache
 from django.contrib.auth.hashers import make_password
-from django.utils.http import urlsafe_base64_decode, force_str
+from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 
@@ -582,39 +582,13 @@ def verify_email(request, uidb64, token):
         # The frontend should handle displaying a success message.
         frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
         return redirect(f"{frontend_url}/login?verified=true")
-        else:
+    else:
         # Redirect to an invalid link page on the frontend
         frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
         return redirect(f"{frontend_url}/invalid-verification-link")
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def resend_verification_email(request):
-    """
-    Resends the verification email to a user who has not yet activated their account.
-    """
-    email = request.data.get('email')
-    if not email:
-        return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    try:
-        user = User.objects.get(email=email)
-    except User.DoesNotExist:
-        # Don't reveal that the user does not exist
-        return Response({'message': 'If an account with that email exists, a new verification link has been sent.'}, status=status.HTTP_200_OK)
-
-    if user.is_active:
-        return Response({'message': 'This account has already been activated.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Resend the verification email
-    email_sent = send_verification_email(user, request._request)
-    if email_sent:
-        logger.info(f"Verification email resent to {user.email}")
-        return Response({'message': 'A new verification link has been sent to your email.'}, status=status.HTTP_200_OK)
-    else:
-        logger.error(f"Failed to resend verification email to {user.email}")
-        return Response({'error': 'Failed to send verification email. Please try again later.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
@@ -651,7 +625,6 @@ def user_profile(request):
         'username': user.username,  # Add username
         'phone': customer.phone,
         'address': customer.address,
-        'is_phone_verified': customer.is_phone_verified,
         'is_email_verified': customer.is_email_verified,
         'stats': {
             'total_orders': total_orders,
@@ -670,7 +643,6 @@ def user_profile(request):
         'preferences': {
             'notifications_enabled': True,  # Default preference
             'email_notifications': True,
-            'sms_notifications': customer.is_phone_verified,
         },
         'security': {
             'last_login': user.last_login,

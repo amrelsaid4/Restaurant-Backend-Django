@@ -139,12 +139,9 @@ class Customer(models.Model):
     phone = models.CharField(max_length=15, verbose_name="Phone Number")
     address = models.TextField(verbose_name="Address")
     date_of_birth = models.DateField(blank=True, null=True, verbose_name="Date of Birth")
-    is_phone_verified = models.BooleanField(default=False, verbose_name="Phone Verified")
     is_email_verified = models.BooleanField(default=False, verbose_name="Email Verified")
-    phone_verification_code = models.CharField(max_length=6, blank=True, null=True, verbose_name="Phone Verification Code")
-    email_verification_code = models.CharField(max_length=6, blank=True, null=True, verbose_name="Email Verification Code")
-    verification_code_expires_at = models.DateTimeField(blank=True, null=True, verbose_name="Verification Code Expires At")
     created_at = models.DateTimeField(auto_now_add=True)
+
 
     class Meta:
         verbose_name = "Customer"

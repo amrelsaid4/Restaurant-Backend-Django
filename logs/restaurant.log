@@ -8598,3 +8598,7 @@ INFO 2025-07-09 14:10:21,186 views 17040 3768 Stripe initialized successfully
 INFO 2025-07-09 14:16:42,499 autoreload 17040 3768 C:\Users\CompuTouch\Desktop\restaurant-django\restaurant\views.py changed, reloading.
 INFO 2025-07-09 14:16:44,803 autoreload 10332 14556 Watching for file changes with StatReloader
 INFO 2025-07-09 14:16:46,902 views 10332 14556 Stripe initialized successfully
+INFO 2025-07-10 04:29:06,681 views 2052 12364 Stripe initialized successfully
+INFO 2025-07-10 04:30:01,580 views 9540 5968 Stripe initialized successfully
+INFO 2025-07-10 04:30:34,318 views 6188 9360 Stripe initialized successfully
+INFO 2025-07-10 04:31:19,919 views 23112 13024 Stripe initialized successfully
