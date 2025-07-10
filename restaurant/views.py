@@ -325,9 +325,17 @@ class AdminCategoryViewSet(viewsets.ModelViewSet):
 
 class AdminDishViewSet(viewsets.ModelViewSet):
     queryset = Dish.objects.all()
-    serializer_class = AdminDishSerializer
     permission_classes = [IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
+
+    def get_serializer_class(self):
+        """
+        Use AdminDishSerializer for write actions (create, update)
+        and the default DishSerializer for read actions (list, retrieve).
+        """
+        if self.action in ['create', 'update', 'partial_update']:
+            return AdminDishSerializer
+        return DishSerializer
 
     def create(self, request, *args, **kwargs):
         logger.info(f"Admin creating dish. Data: {request.data}")
