@@ -40,7 +40,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 from .serializers import ContactMessageSerializer
-ارfrom rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 # Configure logging
 logger = logging.getLogger(__name__)
