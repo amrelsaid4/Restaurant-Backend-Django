@@ -310,7 +310,7 @@ class ContactMessage(models.Model):
     """Model to store contact form submissions from users."""
     name = models.CharField(max_length=150, verbose_name="Name")
     email = models.EmailField(verbose_name="Email Address")
-    subject = models.CharField(max_length=255, verbose_name="Subject")
+    subject = models.CharField(max_length=255, verbose_name="Subject", blank=True, default="No Subject Provided")
     message = models.TextField(verbose_name="Message")
     is_read = models.BooleanField(default=False, verbose_name="Read by Admin")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Received At")
