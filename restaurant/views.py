@@ -40,6 +40,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 from .serializers import ContactMessageSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -325,8 +326,16 @@ class AdminCategoryViewSet(viewsets.ModelViewSet):
 class AdminDishViewSet(viewsets.ModelViewSet):
     queryset = Dish.objects.all()
     serializer_class = DishSerializer
-    permission_classes = [AllowAny]  # Temporarily allow any for testing
-    
+    permission_classes = [IsAdminUser]
+    parser_classes = (MultiPartParser, FormParser)
+
+    def create(self, request, *args, **kwargs):
+        logger.info(f"Admin creating dish. Data: {request.data}")
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            logger.error(f"Admin dish creation failed. Errors: {serializer.errors}")
+        return super().create(request, *args, **kwargs)
+
     def update(self, request, *args, **kwargs):
         """Override update to add debugging for PATCH requests"""
         logger.info(f"📝 AdminDishViewSet PATCH request data: {request.data}")
