@@ -144,7 +144,7 @@ SPECTACULAR_SETTINGS = {
 }
 
 # CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = False  
 CORS_ALLOWED_ORIGINS = [
     "https://restaurant-backend-django-production.up.railway.app",
     "http://localhost:3000",

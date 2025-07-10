@@ -73,7 +73,7 @@ Restaurant Team
             logger.info(f"Verification email sent to console for {user.email} (development mode)")
             logger.info(f"Verification URL: {verification_url}")
         else:
-            logger.info(f"Verification email sent to {user.email}")
+        logger.info(f"Verification email sent to {user.email}")
         
         return True
     except Exception as e:

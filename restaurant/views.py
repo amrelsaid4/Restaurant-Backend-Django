@@ -30,7 +30,7 @@ from .serializers import (
     CategorySerializer, DishSerializer, CustomerSerializer,
     OrderSerializer, OrderCreateSerializer, DishRatingSerializer,
     RestaurantSerializer, UserSerializer, NotificationSerializer,
-    OrderAnalyticsSerializer, EnhancedOrderCreateSerializer
+    OrderAnalyticsSerializer, EnhancedOrderCreateSerializer, AdminDishSerializer
 )
 from .filters import DishFilter, CategoryFilter, OrderFilter, DishRatingFilter
 from django.db.models import Count, Avg, Sum
@@ -325,7 +325,7 @@ class AdminCategoryViewSet(viewsets.ModelViewSet):
 
 class AdminDishViewSet(viewsets.ModelViewSet):
     queryset = Dish.objects.all()
-    serializer_class = DishSerializer
+    serializer_class = AdminDishSerializer
     permission_classes = [IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
 
