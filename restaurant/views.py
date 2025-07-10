@@ -16,6 +16,12 @@ import stripe
 import json
 import logging
 import time
+
+from .utils import account_activation_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+from django.shortcuts import redirect
+
 from .models import (
     Category, Dish, Customer, Order, OrderItem, DishRating, 
     Restaurant, AdminProfile, Notification, OrderAnalytics
@@ -30,11 +36,14 @@ from .filters import DishFilter, CategoryFilter, OrderFilter, DishRatingFilter
 from .utils import (
     get_popular_dishes, send_order_notifications, send_stock_alert,
     calculate_daily_analytics, invalidate_dish_cache, send_notification_to_admins,
-    send_sms
+    send_sms, send_verification_email
 )
 from django.db.models import Count, Avg, Sum
 from django.core.cache import cache
 from django.contrib.auth.hashers import make_password
+from django.utils.http import urlsafe_base64_decode, force_str
+from django.contrib.auth import logout
+from django.shortcuts import redirect
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -475,180 +484,138 @@ def menu_overview(request):
 @permission_classes([AllowAny])
 def register_user(request):
     """
-    Step 1 of registration: Validate data, generate verification code,
-    and cache user data without creating a user yet.
+    Register a new user and customer.
+    The user will be inactive until their email is verified.
     """
-    import random
-    
     data = request.data
-    
-    # --- Data Validation ---
-    required_fields = ['username', 'email', 'password', 'first_name', 'last_name', 'phone']
-    missing_fields = [field for field in required_fields if not data.get(field)]
-    if missing_fields:
-        return Response({'error': f'Missing fields: {", ".join(missing_fields)}'}, status=400)
-    
-    if User.objects.filter(username=data.get('username')).exists():
-        return Response({'error': 'Username already exists.'}, status=400)
-    
-    if User.objects.filter(email=data.get('email')).exists():
-        return Response({'error': 'Email already exists.'}, status=400)
-    
-    phone = data.get('phone')
-    if Customer.objects.filter(phone=phone).exists():
-        return Response({'error': 'Phone number already exists.'}, status=400)
-    
-    if not phone.isdigit() or len(phone) < 10:
-        return Response({'error': 'Invalid phone number.'}, status=400)
-    
+    email = data.get('email')
+    username = data.get('username')
     password = data.get('password')
-    if len(password) < 8:
-        return Response({'error': 'Password must be at least 8 characters long.'}, status=400)
-
-    # --- Generate Code and Cache Data ---
-    try:
-        verification_code = str(random.randint(100000, 999999))
-        
-        # Store all registration data in cache for 10 minutes
-        user_data_to_cache = {
-            'username': data.get('username'),
-            'email': data.get('email'),
-            'password': make_password(password), # Hash password before caching
-            'first_name': data.get('first_name', ''),
-            'last_name': data.get('last_name', ''),
-            'phone': phone,
-            'address': data.get('address', ''),
-            'verification_code': verification_code
-        }
-        
-        cache_key = f"user_registration_{phone}"
-        cache.set(cache_key, user_data_to_cache, timeout=600) # Timeout 10 minutes
-        
-        # --- Send Verification Code (Simulated) ---
-        # TODO: Implement a real SMS sending service here (e.g., Twilio)
-        logger.info(f"Generated phone verification code for {phone}: {verification_code}")
-        
-        return Response({
-            'message': 'Verification code sent to your phone number.',
-            'phone': phone,
-            'verification_code_for_testing': verification_code # IMPORTANT: Remove in production
-        }, status=200)
-        
-    except Exception as e:
-        logger.error(f"Error during registration step 1: {e}")
-        return Response({'error': 'An unexpected error occurred. Please try again.'}, status=500)
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def send_verification_code(request):
-    """
-    Resends a verification code during registration by updating the code in the cache.
-    This does NOT query the database for a customer.
-    """
-    import random
     
-    data = request.data
-    phone = data.get('identifier') # The frontend sends phone number as 'identifier'
-    
-    if not phone:
-        return Response({'error': 'Phone number is required.'}, status=400)
+    # Phone number is now optional
+    phone_number = data.get('phone_number', '') 
 
-    cache_key = f"user_registration_{phone}"
-    cached_data = cache.get(cache_key)
-    
-    if not cached_data:
-        return Response({
-            'error': 'No active registration found for this phone number. Please start over.'
-        }, status=404)
-        
-    try:
-        # Generate a new code and update it in the cache
-        new_verification_code = str(random.randint(100000, 999999))
-        cached_data['verification_code'] = new_verification_code
-        
-        # Reset the cache with the new code, maintaining the original timeout
-        cache.set(cache_key, cached_data, timeout=600)
-        
-        # --- Send Verification Code via SMS ---
-        message = f"Your verification code is: {new_verification_code}"
-        sms_sent = send_sms(phone, message)
-
-        if sms_sent:
-            logger.info(f"Verification code sent via SMS to {phone}")
-            return Response({
-                'message': 'A new verification code has been sent to your phone.',
-                'phone': phone
-            }, status=200)
-        else:
-            logger.error(f"Failed to send SMS to {phone}. Check Twilio credentials and configuration.")
-            # Return a more specific error instead of a generic 500
-            return Response({
-                'error': 'The SMS service is currently unavailable. Please try again later.'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-    except Exception as e:
-        logger.error(f"Error resending verification code: {e}")
-        return Response({'error': 'Failed to resend verification code.'}, status=500)
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def verify_code(request):
-    """
-    Step 2 of registration: Verify code and create the user if valid.
-    """
-    data = request.data
-    phone = data.get('phone')
-    submitted_code = data.get('code')
-    
-    if not phone or not submitted_code:
-        return Response({'error': 'Phone number and code are required.'}, status=400)
-        
-    cache_key = f"user_registration_{phone}"
-    cached_data = cache.get(cache_key)
-    
-    if not cached_data:
-        return Response({'error': 'Verification code has expired or is invalid. Please try registering again.'}, status=404)
-        
-    if cached_data.get('verification_code') != submitted_code:
-        return Response({'error': 'The verification code is incorrect.'}, status=400)
-        
-    # --- Code is valid, create user ---
-    try:
-        user = User.objects.create(
-            username=cached_data['username'],
-            email=cached_data['email'],
-            password=cached_data['password'], # Use the pre-hashed password
-            first_name=cached_data['first_name'],
-            last_name=cached_data['last_name']
+    # Basic validation
+    if not all([email, username, password]):
+        return Response(
+            {'error': 'Email, username, and password are required.'},
+            status=status.HTTP_400_BAD_REQUEST
         )
-        
+
+    # Check for existing user
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+    if User.objects.filter(email=email).exists():
+        return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Create new user
+    try:
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            is_active=False  # Deactivate until email is verified
+        )
+        logger.info(f"User '{username}' created but inactive.")
+
+        # Create customer profile
         customer = Customer.objects.create(
             user=user,
-            phone=cached_data['phone'],
-            address=cached_data['address'],
-            is_phone_verified=True, # Verified!
-            is_email_verified=False # Can be verified later
+            phone=phone_number,
+            address=data.get('address', '')
         )
-        
-        # Clean up the cache
-        cache.delete(cache_key)
-        
-        # Log the user in and get token (assuming you have a token system)
-        # This part might need adjustment based on your auth setup (e.g., Simple JWT)
-        login(request, user)
-        
-        # For now, just return success. A real app would return an auth token.
-        return Response({
-            'message': 'User verified and created successfully!',
-            'user_id': user.id,
-            'username': user.username
-        }, status=201)
+        logger.info(f"Customer profile created for '{username}'.")
+
+        # Send verification email
+        email_sent = send_verification_email(user, request._request)
+        if not email_sent:
+            # We don't roll back, but we notify the frontend.
+            # The user can request a new verification email.
+            logger.warning(f"Failed to send verification email for '{username}'.")
+            # The response still indicates success, but with a warning.
+            # The frontend should handle this.
+            user_data = UserSerializer(user).data
+            user_data['warning'] = 'User created, but failed to send verification email.'
+            return Response(user_data, status=status.HTTP_201_CREATED)
+
+        # Return user data
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     except Exception as e:
-        logger.error(f"Error creating user after verification: {e}")
-        # Attempt to delete the partially created user to avoid dangling data
-        User.objects.filter(username=cached_data['username']).delete()
-        return Response({'error': 'Failed to create user account after verification.'}, status=500)
+        logger.error(f"Error during user registration for '{username}': {e}", exc_info=True)
+        # Clean up user if something else went wrong during profile creation
+        if 'user' in locals() and not Customer.objects.filter(user=user).exists():
+            user.delete()
+        return Response(
+            {'error': 'An unexpected error occurred during registration.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def verify_email(request, uidb64, token):
+    """
+    Verify email address from the link sent to the user.
+    """
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and account_activation_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        
+        try:
+            customer = user.customer
+            customer.is_email_verified = True
+            customer.save()
+        except Customer.DoesNotExist:
+            # This should not happen if registration is atomic
+            logger.error(f"Critical: Customer profile not found for user {user.username} during email verification.")
+            pass
+
+        login(request, user)
+        # Redirect to a success page on the frontend
+        # The frontend should handle displaying a success message.
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+        return redirect(f"{frontend_url}/login?verified=true")
+    else:
+        # Redirect to an invalid link page on the frontend
+        frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+        return redirect(f"{frontend_url}/invalid-verification-link")
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def resend_verification_email(request):
+    """
+    Resends the verification email to a user who has not yet activated their account.
+    """
+    email = request.data.get('email')
+    if not email:
+        return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        # Don't reveal that the user does not exist
+        return Response({'message': 'If an account with that email exists, a new verification link has been sent.'}, status=status.HTTP_200_OK)
+
+    if user.is_active:
+        return Response({'message': 'This account has already been activated.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Resend the verification email
+    email_sent = send_verification_email(user, request._request)
+    if email_sent:
+        logger.info(f"Verification email resent to {user.email}")
+        return Response({'message': 'A new verification link has been sent to your email.'}, status=status.HTTP_200_OK)
+    else:
+        logger.error(f"Failed to resend verification email to {user.email}")
+        return Response({'error': 'Failed to send verification email. Please try again later.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -1211,8 +1178,6 @@ def user_logout(request):
     """Logout function for all users"""
     # Force CSRF exemption
     setattr(request, '_dont_enforce_csrf_checks', True)
-    
-    from django.contrib.auth import logout
     
     logout(request)
     return Response({'message': 'Logout successful'})

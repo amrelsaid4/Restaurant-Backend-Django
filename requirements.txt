@@ -9,4 +9,3 @@ drf-spectacular==0.28.0
 fcm-django==2.2.1
 django-ratelimit==4.1.0
 gunicorn
-twilio==9.6.4

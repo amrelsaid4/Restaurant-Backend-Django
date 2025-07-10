@@ -5,10 +5,70 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 import logging
 from django.utils.deprecation import MiddlewareMixin
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.conf import settings
+import six
+
 
 from .models import Dish, Category, Order, OrderAnalytics, Notification
 
 logger = logging.getLogger('restaurant')
+
+class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
+    def _make_hash_value(self, user, timestamp):
+        return (
+            six.text_type(user.pk) + six.text_type(timestamp) +
+            six.text_type(user.is_active)
+        )
+
+account_activation_token_generator = AccountActivationTokenGenerator()
+
+def send_verification_email(user, request):
+    """
+    Sends a verification email to the user with a unique token.
+    """
+    token = account_activation_token_generator.make_token(user)
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    
+    # The domain should be your frontend's domain
+    # You might want to get this from settings or construct it dynamically
+    frontend_domain = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
+    
+    verification_url = f"{frontend_domain}/verify-email/{uid}/{token}/"
+    
+    subject = "Activate Your Restaurant Account"
+    # For now, using a simple text message. An HTML template is better.
+    # You will need to create 'account_activation_email.html'
+    message = f"""
+Hi {user.username},
+
+Thank you for registering at our restaurant.
+Please click the link below to activate your account:
+{verification_url}
+
+If you did not register, please ignore this email.
+"""
+    
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', settings.EMAIL_HOST_USER)
+
+    try:
+        send_mail(
+            subject,
+            message,
+            from_email,
+            [user.email],
+            fail_silently=False,
+        )
+        logger.info(f"Verification email sent to {user.email}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send verification email to {user.email}: {e}")
+        return False
+
 
 # ===== CACHING UTILITIES =====
 
@@ -268,46 +328,6 @@ def validate_order_items(items):
             errors.append(f"Dish with id {dish_id} does not exist")
     
     return errors 
-
-# ===== SMS UTILITIES =====
-
-def send_sms(phone_number, message):
-    """
-    Sends an SMS message using Twilio.
-    """
-    from django.conf import settings
-    from twilio.rest import Client
-    from twilio.base.exceptions import TwilioRestException
-
-    account_sid = settings.TWILIO_ACCOUNT_SID
-    auth_token = settings.TWILIO_AUTH_TOKEN
-    twilio_phone_number = settings.TWILIO_PHONE_NUMBER
-
-    if not all([account_sid, auth_token, twilio_phone_number]):
-        logger.error("Twilio credentials are not configured in settings.")
-        return False
-
-    client = Client(account_sid, auth_token)
-
-    try:
-        # Make sure the phone number is in E.164 format
-        if not phone_number.startswith('+'):
-             # Assuming country code is +20 for Egypt if not provided
-            phone_number = f"+20{phone_number}"
-
-        message = client.messages.create(
-            body=message,
-            from_=twilio_phone_number,
-            to=phone_number
-        )
-        logger.info(f"SMS sent to {phone_number} with SID: {message.sid}")
-        return True
-    except TwilioRestException as e:
-        logger.error(f"Error sending SMS to {phone_number}: {e}")
-        return False
-    except Exception as e:
-        logger.error(f"An unexpected error occurred while sending SMS: {e}")
-        return False
 
 class SessionDebugMiddleware(MiddlewareMixin):
     """Debug middleware for session handling"""

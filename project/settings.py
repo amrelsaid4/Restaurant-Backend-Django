@@ -226,13 +226,8 @@ STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
 STRIPE_ENDPOINT_SECRET = os.getenv('STRIPE_ENDPOINT_SECRET')
 
-# ==============================================================================
-# 🎯 TWILIO CONFIGURATION (FOR SMS)
-# ==============================================================================
-# ⚠️ IMPORTANT: Fill these with your actual Twilio credentials
-TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', '')
-TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', '')
-TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER', '')
+# Frontend URL for email links
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
 # Email Configuration
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
@@ -241,6 +236,7 @@ EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 
 # Logging Configuration المحسن
 LOGGING = {
@@ -302,8 +298,8 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True 
 
-
 STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', 'your_stripe_public_key')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', 'your_stripe_secret_key')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', 'your_stripe_webhook_secret')
 
+ 
