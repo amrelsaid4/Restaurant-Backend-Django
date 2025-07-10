@@ -144,18 +144,12 @@ SPECTACULAR_SETTINGS = {
 }
 
 # CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = False  
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://localhost:5174",
-    "http://127.0.0.1:5174", 
-    "http://localhost:5175",
-    "http://127.0.0.1:5175",
-    "http://localhost:5176",
-    "http://127.0.0.1:5176",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -193,6 +187,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:5173',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    # Add your production frontend URL here
+    "https://your-frontend-app-url.com",
 ]
 
 CSRF_COOKIE_SECURE = False
@@ -228,6 +224,10 @@ STRIPE_ENDPOINT_SECRET = os.getenv('STRIPE_ENDPOINT_SECRET')
 # Frontend URL for email links
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
+# ==============================================================================
+# 🎯 TWILIO CONFIGURATION (FOR SMS)
+# ==============================================================================
+# ⚠️ IMPORTANT: Fill these with your actual Twilio credentials
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', '')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', '')
 TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER', '')
@@ -301,8 +301,12 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True 
 
-
+# 🎯 STRIPE CONFIGURATION
+# ==============================================================================
 STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', 'your_stripe_public_key')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', 'your_stripe_secret_key')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', 'your_stripe_webhook_secret')
 
+# ==============================================================================
+# 📞 CORS (Cross-Origin Resource Sharing)
+# ============================================================================== 

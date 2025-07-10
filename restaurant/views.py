@@ -541,7 +541,7 @@ def register_user(request):
         # Return user data
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+        
     except Exception as e:
         logger.error(f"Error during user registration for '{username}': {e}", exc_info=True)
         # Clean up user if something else went wrong during profile creation
@@ -582,7 +582,7 @@ def verify_email(request, uidb64, token):
         # The frontend should handle displaying a success message.
         frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
         return redirect(f"{frontend_url}/login?verified=true")
-    else:
+        else:
         # Redirect to an invalid link page on the frontend
         frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')
         return redirect(f"{frontend_url}/invalid-verification-link")
