@@ -44,6 +44,7 @@ from django.contrib.auth.hashers import make_password
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth import logout
 from django.shortcuts import redirect
+from .serializers import ContactMessageSerializer
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -551,6 +552,25 @@ def register_user(request):
             {'error': 'An unexpected error occurred during registration.'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def submit_contact_form(request):
+    """
+    Handles submission of the contact form.
+    Creates a new ContactMessage instance.
+    """
+    serializer = ContactMessageSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        # Optionally, send an email notification to the admin here
+        return Response(
+            {'message': 'Your message has been received. Thank you!'},
+            status=status.HTTP_201_CREATED
+        )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])

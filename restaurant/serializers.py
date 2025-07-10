@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from .models import (
     Category, Dish, Customer, Order, OrderItem, 
-    DishRating, Restaurant, AdminProfile, Notification, OrderAnalytics
+    DishRating, Restaurant, AdminProfile, Notification, OrderAnalytics, ContactMessage
 )
 import logging
 
@@ -202,10 +202,15 @@ class NotificationSerializer(serializers.ModelSerializer):
 class OrderAnalyticsSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderAnalytics
-        fields = [
-            'id', 'date', 'total_orders', 'total_revenue',
-            'popular_dishes', 'avg_order_value'
-        ]
+        fields = '__all__'
+
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    """Serializer for the ContactMessage model."""
+    class Meta:
+        model = ContactMessage
+        fields = ['id', 'name', 'email', 'subject', 'message', 'created_at']
+        read_only_fields = ['id', 'created_at']
 
 # تحسين OrderCreateSerializer مع validation
 class EnhancedOrderCreateSerializer(serializers.ModelSerializer):

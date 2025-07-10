@@ -1,5 +1,8 @@
 from django.contrib import admin
-from .models import Category, Dish, Customer, Order, OrderItem, DishRating, Restaurant, AdminProfile
+from .models import (
+    Category, Dish, Customer, Order, OrderItem, DishRating,
+    Restaurant, AdminProfile, Notification, OrderAnalytics, ContactMessage
+)
 
 @admin.register(AdminProfile)
 class AdminProfileAdmin(admin.ModelAdmin):
@@ -56,3 +59,17 @@ class RestaurantAdmin(admin.ModelAdmin):
     list_filter = ['is_active']
     search_fields = ['name', 'address']
     list_editable = ['is_active']
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'subject', 'created_at', 'is_read')
+    list_filter = ('is_read', 'created_at')
+    search_fields = ('name', 'email', 'subject', 'message')
+    readonly_fields = ('name', 'email', 'subject', 'message', 'created_at')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return True

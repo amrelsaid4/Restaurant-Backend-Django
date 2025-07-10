@@ -304,3 +304,21 @@ class OrderAnalytics(models.Model):
     
     def __str__(self):
         return f"Analytics {self.date} - {self.total_orders} orders"
+
+
+class ContactMessage(models.Model):
+    """Model to store contact form submissions from users."""
+    name = models.CharField(max_length=150, verbose_name="Name")
+    email = models.EmailField(verbose_name="Email Address")
+    subject = models.CharField(max_length=255, verbose_name="Subject")
+    message = models.TextField(verbose_name="Message")
+    is_read = models.BooleanField(default=False, verbose_name="Read by Admin")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Received At")
+
+    class Meta:
+        verbose_name = "Contact Message"
+        verbose_name_plural = "Contact Messages"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'Message from {self.name} re: "{self.subject}"'

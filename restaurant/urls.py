@@ -43,6 +43,7 @@ urlpatterns = [
     path('api/restaurant-info/', views.restaurant_info, name='restaurant-info'),
     path('api/menu-overview/', views.menu_overview, name='menu-overview'),
     path('api/homepage-stats/', views.homepage_stats, name='homepage-stats'),
+    path('api/contact/', views.submit_contact_form, name='submit-contact-form'),
     path('api/register/', views.register_user, name='register'),
     path('api/verify-email/<uidb64>/<token>/', views.verify_email, name='verify-email'),
     path('api/resend-verification-email/', views.resend_verification_email, name='resend-verification-email'),
