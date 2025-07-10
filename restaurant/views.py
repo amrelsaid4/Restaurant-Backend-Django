@@ -33,6 +33,11 @@ from .serializers import (
     OrderAnalyticsSerializer, EnhancedOrderCreateSerializer
 )
 from .filters import DishFilter, CategoryFilter, OrderFilter, DishRatingFilter
+from .utils import (
+    get_popular_dishes, send_order_notifications, send_stock_alert,
+    calculate_daily_analytics, invalidate_dish_cache, send_notification_to_admins,
+    send_verification_email
+)
 from django.db.models import Count, Avg, Sum
 from django.core.cache import cache
 from django.contrib.auth.hashers import make_password
