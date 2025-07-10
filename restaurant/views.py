@@ -33,11 +33,6 @@ from .serializers import (
     OrderAnalyticsSerializer, EnhancedOrderCreateSerializer
 )
 from .filters import DishFilter, CategoryFilter, OrderFilter, DishRatingFilter
-from .utils import (
-    get_popular_dishes, send_order_notifications, send_stock_alert,
-    calculate_daily_analytics, invalidate_dish_cache, send_notification_to_admins,
-    send_verification_email
-)
 from django.db.models import Count, Avg, Sum
 from django.core.cache import cache
 from django.contrib.auth.hashers import make_password
@@ -561,6 +556,7 @@ def submit_contact_form(request):
     Handles submission of the contact form.
     Creates a new ContactMessage instance.
     """
+    logger.info(f"Contact form submission received. Data: {request.data}")
     serializer = ContactMessageSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -569,6 +565,7 @@ def submit_contact_form(request):
             {'message': 'Your message has been received. Thank you!'},
             status=status.HTTP_201_CREATED
         )
+    logger.error(f"Contact form validation failed. Errors: {serializer.errors}")
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
