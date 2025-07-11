@@ -153,6 +153,9 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOW_ALL_ORIGINS = False  
 CORS_ALLOWED_ORIGINS = [
     "https://restaurant-backend-django-production.up.railway.app",
+    "https://restaurant-frontend-react-152i.vercel.app",
+    "https://restaurant-frontend-react-152i-git-main-amrelsaid4s-projects.vercel.app",
+    "https://restaurant-frontend-react-152i-5lp2llitn-amrelsaid4s-projects.vercel.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:5173",
@@ -197,6 +200,9 @@ CORS_EXPOSE_HEADERS = [
 # CSRF Configuration
 CSRF_TRUSTED_ORIGINS = [
     "https://restaurant-backend-django-production.up.railway.app",
+    "https://restaurant-frontend-react-152i.vercel.app",
+    "https://restaurant-frontend-react-152i-git-main-amrelsaid4s-projects.vercel.app",
+    "https://restaurant-frontend-react-152i-5lp2llitn-amrelsaid4s-projects.vercel.app",
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:3000',
