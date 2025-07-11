@@ -60,7 +60,7 @@ class DishSerializer(serializers.ModelSerializer):
     rating_count = serializers.SerializerMethodField()
     is_in_stock = serializers.ReadOnlyField()
     is_low_stock = serializers.ReadOnlyField()
-    image = serializers.ImageField(max_length=None, use_url=True, required=False)
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = Dish
@@ -72,6 +72,11 @@ class DishSerializer(serializers.ModelSerializer):
             'is_in_stock', 'is_low_stock', 'created_at', 'updated_at'
         ]
         read_only_fields = ('slug', 'category_name')
+
+    def get_image(self, obj):
+        if obj.image and hasattr(obj.image, 'url'):
+            return obj.image.url
+        return None
 
     def get_rating_count(self, obj):
         cache_key = f'dish_ratings_count_{obj.id}'
