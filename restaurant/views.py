@@ -17,7 +17,7 @@ import json
 import logging
 import time
 
-from .utils import account_activation_token_generator
+from .utils import account_activation_token_generator, send_verification_email
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.shortcuts import redirect
