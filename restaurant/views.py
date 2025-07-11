@@ -465,9 +465,7 @@ class AdminOrderViewSet(viewsets.ModelViewSet):
         )['total'] or 0
         
         # Orders by status
-        orders_by_status = Order.objects.values('status').annotate(
-            count=Count('id')
-        )
+        orders_by_status = Order.objects.values('status').annotate(count=Count('id'))
         
         return Response({
             'total_orders': total_orders,
@@ -1481,7 +1479,7 @@ def create_checkout_session(request):
             logger.warning("No authenticated user found for checkout.")
             # We can proceed with a temporary customer email for Stripe if needed,
             # but we won't create a User object.
-            # For this implementation, we will require login for checkout.
+            # For this imple
             return Response({'error': 'User authentication required for checkout.'}, status=401)
 
         else:
@@ -1539,14 +1537,17 @@ def create_checkout_session(request):
         })
         total_amount += 3.99
         
+        # Get Frontend URL from settings
+        frontend_url = settings.FRONTEND_URL.strip('/')
+
         # Create Stripe Checkout Session
         try:
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 line_items=line_items,
                 mode='payment',
-                success_url='http://localhost:5173/order-success?session_id={CHECKOUT_SESSION_ID}',
-                cancel_url='http://localhost:5173/order-cancelled',
+                success_url=f'{frontend_url}/order-success?session_id={{CHECKOUT_SESSION_ID}}',
+                cancel_url=f'{frontend_url}/order-cancelled',
                 metadata={
                     'customer_id': str(customer.id),
                     'user_id': str(current_user.id),
