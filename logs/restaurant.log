@@ -8705,3 +8705,12 @@ INFO 2025-07-11 07:05:38,779 views 14700 22788 Stripe initialized successfully
 INFO 2025-07-11 07:31:12,285 autoreload 14700 22788 C:\Users\CompuTouch\Desktop\restaurant-django\project\settings.py changed, reloading.
 INFO 2025-07-11 07:31:14,114 autoreload 20252 5256 Watching for file changes with StatReloader
 INFO 2025-07-11 07:31:15,257 views 20252 5256 Stripe initialized successfully
+INFO 2025-07-11 07:41:16,607 autoreload 20252 5256 C:\Users\CompuTouch\Desktop\restaurant-django\project\settings.py changed, reloading.
+INFO 2025-07-11 07:41:18,573 autoreload 18812 21884 Watching for file changes with StatReloader
+INFO 2025-07-11 07:41:19,731 views 18812 21884 Stripe initialized successfully
+INFO 2025-07-11 07:41:27,106 autoreload 18812 21884 C:\Users\CompuTouch\Desktop\restaurant-django\project\settings.py changed, reloading.
+INFO 2025-07-11 07:41:29,247 autoreload 16732 18592 Watching for file changes with StatReloader
+INFO 2025-07-11 07:41:30,445 views 16732 18592 Stripe initialized successfully
+INFO 2025-07-11 08:06:28,868 autoreload 16732 18592 C:\Users\CompuTouch\Desktop\restaurant-django\project\settings.py changed, reloading.
+INFO 2025-07-11 08:06:32,084 autoreload 14360 11612 Watching for file changes with StatReloader
+INFO 2025-07-11 08:06:33,481 views 14360 11612 Stripe initialized successfully

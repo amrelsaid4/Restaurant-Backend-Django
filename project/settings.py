@@ -150,22 +150,21 @@ SPECTACULAR_SETTINGS = {
 }
 
 # CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = False  
+CORS_ALLOW_ALL_ORIGINS = False
+
+# Static list of allowed origins
 CORS_ALLOWED_ORIGINS = [
     "https://restaurant-backend-django-production.up.railway.app",
     "https://restaurant-frontend-react-152i.vercel.app",
-    "https://restaurant-frontend-react-152i-git-main-amrelsaid4s-projects.vercel.app",
-    "https://restaurant-frontend-react-152i-5lp2llitn-amrelsaid4s-projects.vercel.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://localhost:5174",
-    "http://127.0.0.1:5174", 
-    "http://localhost:5175",
-    "http://127.0.0.1:5175",
-    "http://localhost:5176",
-    "http://127.0.0.1:5176",
+]
+
+# Regex for Vercel preview and deployment URLs
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.vercel\.app$",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -201,12 +200,8 @@ CORS_EXPOSE_HEADERS = [
 CSRF_TRUSTED_ORIGINS = [
     "https://restaurant-backend-django-production.up.railway.app",
     "https://restaurant-frontend-react-152i.vercel.app",
-    "https://restaurant-frontend-react-152i-git-main-amrelsaid4s-projects.vercel.app",
-    "https://restaurant-frontend-react-152i-5lp2llitn-amrelsaid4s-projects.vercel.app",
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
+    # Trust all vercel.app subdomains for CSRF
+    "https://.vercel.app",
 ]
 
 CSRF_COOKIE_SECURE = False
