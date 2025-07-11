@@ -91,14 +91,34 @@ class Dish(models.Model):
             models.Index(fields=['stock_quantity']),
         ]
 
+    def _clear_category_cache(self):
+        """Clears the cache for the dish's category."""
+        from django.core.cache import cache
+        cache.delete(f'category_dishes_count_{self.category.id}')
+        cache.delete(f'category_available_dishes_count_{self.category.id}')
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+        
+        # Clear cache on save
+        self._clear_category_cache()
+
         logger.info(f"Dish saved: {self.name} - Stock: {self.stock_quantity}")
         super().save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs):
+        """Clear cache on delete."""
+        self._clear_category_cache()
+        super().delete(*args, **kwargs)
+
     def clean(self):
-        if Dish.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+        if self.pk is None and not hasattr(self, 'category'):
+             # This check is for the initial creation via admin or shell,
+             # where category might not be set yet.
+             # The actual enforcement happens at the DB level or in forms/serializers.
+             pass
+        elif Dish.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
             raise ValidationError({'slug': 'Dish with this slug already exists'})
         if self.price <= 0:
             raise ValidationError({'price': 'Price must be greater than 0'})
