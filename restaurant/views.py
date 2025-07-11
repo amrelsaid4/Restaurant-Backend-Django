@@ -338,7 +338,11 @@ class AdminDishViewSet(viewsets.ModelViewSet):
         return DishSerializer
 
     def create(self, request, *args, **kwargs):
-        logger.info(f"Admin creating dish. Data: {request.data}")
+        logger.info(f"Admin creating dish. Content-Type: {request.content_type}")
+        logger.info(f"Admin creating dish. POST data: {request.POST}")
+        logger.info(f"Admin creating dish. FILES data: {request.FILES}")
+        logger.info(f"Admin creating dish. Raw request.data: {request.data}")
+        
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
             logger.error(f"Admin dish creation failed. Errors: {serializer.errors}")
