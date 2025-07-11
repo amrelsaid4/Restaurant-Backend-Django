@@ -94,14 +94,14 @@ class AdminDishSerializer(serializers.ModelSerializer):
     A dedicated serializer for the Admin panel to handle dish creation and updates,
     especially for file uploads, without the complex read-only fields of the main serializer.
     """
-    category = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all()
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), source='category'
     )
 
     class Meta:
         model = Dish
         fields = [
-            'name', 'description', 'price', 'category', 'image', 'is_available',
+            'name', 'description', 'price', 'category_id', 'image', 'is_available',
             'stock_quantity', 'low_stock_threshold', 'preparation_time',
             'ingredients', 'calories', 'is_spicy', 'is_vegetarian'
         ]
