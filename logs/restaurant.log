@@ -8641,3 +8641,18 @@ INFO 2025-07-10 11:18:55,199 basehttp 2712 5460 "GET /static/admin/css/widgets.c
 INFO 2025-07-10 11:18:55,332 basehttp 2712 5460 "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 304 0
 INFO 2025-07-10 11:18:55,334 basehttp 2712 3044 "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 304 0
 INFO 2025-07-10 11:18:55,341 basehttp 2712 3044 "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 304 0
+INFO 2025-07-11 05:34:44,333 views 22372 15952 Stripe initialized successfully
+INFO 2025-07-11 05:34:44,422 models 22372 15952 Dish saved: Bacon Burger - Stock: 50
+INFO 2025-07-11 05:34:44,451 models 22372 15952 Dish saved: Classic Cheeseburger - Stock: 50
+INFO 2025-07-11 05:34:44,477 models 22372 15952 Dish saved: Veggie Burger - Stock: 50
+INFO 2025-07-11 05:34:44,504 models 22372 15952 Dish saved: Cola - Stock: 50
+INFO 2025-07-11 05:34:44,530 models 22372 15952 Dish saved: Mango Smoothie - Stock: 50
+INFO 2025-07-11 05:34:44,561 models 22372 15952 Dish saved: Penne Arrabbiata - Stock: 50
+INFO 2025-07-11 05:34:44,592 models 22372 15952 Dish saved: BBQ Chicken Pizza - Stock: 50
+INFO 2025-07-11 05:34:44,624 models 22372 15952 Dish saved: Margherita Pizza - Stock: 50
+INFO 2025-07-11 05:34:44,650 models 22372 15952 Dish saved: Pepperoni Pizza - Stock: 50
+INFO 2025-07-11 05:34:44,684 models 22372 15952 Dish saved: Caesar Salad - Stock: 50
+INFO 2025-07-11 05:34:44,711 models 22372 15952 Dish saved: Greek Salad - Stock: 50
+INFO 2025-07-11 05:34:44,745 models 22372 15952 Dish saved: Chocolate Cake - Stock: 50
+INFO 2025-07-11 05:34:44,781 models 22372 15952 Dish saved: Tiramisu - Stock: 50
+INFO 2025-07-11 05:34:44,812 models 22372 15952 Dish saved: Vanilla Ice Cream - Stock: 50
