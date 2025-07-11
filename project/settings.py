@@ -112,9 +112,8 @@ STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
 
 
 # Media files
-# MEDIA_URL = '/media/' # Old setting
+# MEDIA_URL = '/media/' # Old setting - Not needed for Cloudinary
 # MEDIA_ROOT = BASE_DIR / 'media' # Old setting
-MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
