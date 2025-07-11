@@ -6,7 +6,7 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from django.contrib.auth.models import User
-from django.db import models
+from django.db import models, transaction
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.utils.decorators import method_decorator
@@ -337,42 +337,62 @@ class AdminDishViewSet(viewsets.ModelViewSet):
             return AdminDishSerializer
         return DishSerializer
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         logger.info(f"Admin creating dish. Content-Type: {request.content_type}")
         logger.info(f"Admin creating dish. POST data: {request.POST}")
         logger.info(f"Admin creating dish. FILES data: {request.FILES}")
         logger.info(f"Admin creating dish. Raw request.data: {request.data}")
         
-        serializer = self.get_serializer(data=request.data)
-        if not serializer.is_valid():
-            logger.error(f"Admin dish creation failed. Errors: {serializer.errors}")
-        return super().create(request, *args, **kwargs)
+        try:
+            serializer = self.get_serializer(data=request.data)
+            if not serializer.is_valid():
+                logger.error(f"Admin dish creation failed. Errors: {serializer.errors}")
+                return Response(serializer.errors, status=400)
+            
+            # Create the dish
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            
+            logger.info(f"✅ Dish created successfully: {serializer.data}")
+            return Response(serializer.data, status=201, headers=headers)
+            
+        except Exception as e:
+            logger.error(f"❌ Error creating dish: {str(e)}")
+            return Response({'error': 'Failed to create dish'}, status=500)
 
+    @transaction.atomic
     def update(self, request, *args, **kwargs):
-        """Override update to add debugging for PATCH requests"""
+        """Override update to add debugging and atomic transactions for PATCH requests"""
         logger.info(f"📝 AdminDishViewSet PATCH request data: {request.data}")
         logger.info(f"📝 Content-Type: {request.content_type}")
         logger.info(f"📝 Files: {request.FILES}")
         
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        
-        # Log current instance data
-        logger.info(f"📝 Current dish: {instance.name} (ID: {instance.id})")
-        
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        
-        if not serializer.is_valid():
-            logger.error(f"❌ Validation errors: {serializer.errors}")
-            return Response(serializer.errors, status=400)
-        
-        self.perform_update(serializer)
-        
-        if getattr(instance, '_prefetched_objects_cache', None):
-            instance._prefetched_objects_cache = {}
+        try:
+            partial = kwargs.pop('partial', False)
+            instance = self.get_object()
+            
+            # Log current instance data
+            logger.info(f"📝 Current dish: {instance.name} (ID: {instance.id})")
+            
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            
+            if not serializer.is_valid():
+                logger.error(f"❌ Validation errors: {serializer.errors}")
+                return Response(serializer.errors, status=400)
+            
+            # Update the dish
+            self.perform_update(serializer)
+            
+            if getattr(instance, '_prefetched_objects_cache', None):
+                instance._prefetched_objects_cache = {}
 
-        logger.info(f"✅ Dish updated successfully: {serializer.data}")
-        return Response(serializer.data)
+            logger.info(f"✅ Dish updated successfully: {serializer.data}")
+            return Response(serializer.data)
+            
+        except Exception as e:
+            logger.error(f"❌ Error updating dish: {str(e)}")
+            return Response({'error': 'Failed to update dish'}, status=500)
     
     @action(detail=False, methods=['get'])
     def stats(self, request):
@@ -389,19 +409,43 @@ class AdminDishViewSet(viewsets.ModelViewSet):
             'spicy_dishes': spicy_dishes
         })
     
+    @transaction.atomic
     @action(detail=True, methods=['patch'])
     def set_availability(self, request, pk=None):
-        """Toggle dish availability"""
-        dish = self.get_object()
-        is_available = request.data.get('is_available', dish.is_available)
-        
-        dish.is_available = is_available
-        dish.save()
-        
-        return Response({
-            'message': 'Dish availability updated successfully',
-            'is_available': dish.is_available
-        })
+        """Toggle dish availability with atomic transaction"""
+        try:
+            dish = self.get_object()
+            is_available = request.data.get('is_available', dish.is_available)
+            
+            dish.is_available = is_available
+            dish.save(update_fields=['is_available'])
+            
+            logger.info(f"✅ Dish availability updated: {dish.name} -> {dish.is_available}")
+            return Response({
+                'message': 'Dish availability updated successfully',
+                'is_available': dish.is_available
+            })
+        except Exception as e:
+            logger.error(f"❌ Error updating dish availability: {str(e)}")
+            return Response({'error': 'Failed to update availability'}, status=500)
+
+    @transaction.atomic
+    def destroy(self, request, *args, **kwargs):
+        """Override destroy to add atomic transaction and logging"""
+        try:
+            instance = self.get_object()
+            dish_name = instance.name
+            dish_id = instance.id
+            
+            # Delete the dish
+            self.perform_destroy(instance)
+            
+            logger.info(f"✅ Dish deleted successfully: {dish_name} (ID: {dish_id})")
+            return Response({'message': f'Dish "{dish_name}" deleted successfully'}, status=204)
+            
+        except Exception as e:
+            logger.error(f"❌ Error deleting dish: {str(e)}")
+            return Response({'error': 'Failed to delete dish'}, status=500)
 
 class AdminOrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
