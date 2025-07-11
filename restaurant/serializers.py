@@ -50,11 +50,13 @@ class CategorySerializer(serializers.ModelSerializer):
         return count
 
 class DishSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
+    price = serializers.FloatField()
     category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), source='category', write_only=True
     )
-    average_rating = serializers.ReadOnlyField()
     rating_count = serializers.SerializerMethodField()
     is_in_stock = serializers.ReadOnlyField()
     is_low_stock = serializers.ReadOnlyField()
@@ -63,13 +65,13 @@ class DishSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dish
         fields = [
-            'id', 'name', 'slug', 'description', 'price', 'category', 'category_id',
+            'id', 'name', 'slug', 'description', 'price', 'category', 'category_name',
             'image', 'is_available', 'stock_quantity', 'low_stock_threshold',
             'preparation_time', 'ingredients', 'calories', 'is_spicy',
             'is_vegetarian', 'average_rating', 'rating_count',
             'is_in_stock', 'is_low_stock', 'created_at', 'updated_at'
         ]
-        read_only_fields = ('slug',)
+        read_only_fields = ('slug', 'category_name')
 
     def get_rating_count(self, obj):
         cache_key = f'dish_ratings_count_{obj.id}'
@@ -123,22 +125,23 @@ class CustomerSerializer(serializers.ModelSerializer):
         return sum(order.total_amount for order in orders)
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    dish = DishSerializer(read_only=True)
-    dish_id = serializers.IntegerField(write_only=True)
-    total_price = serializers.ReadOnlyField()
-    
+    dish_name = serializers.CharField(source='dish.name', read_only=True)
+    price = serializers.FloatField(source='dish.price', read_only=True) # Send as float
+
     class Meta:
         model = OrderItem
-        fields = ['id', 'dish', 'dish_id', 'quantity', 'price', 'special_instructions', 'total_price']
+        fields = ['id', 'dish_name', 'quantity', 'price', 'special_instructions']
+
 
 class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True, source='orderitem_set')
     customer = CustomerSerializer(read_only=True)
-    items = OrderItemSerializer(source='orderitem_set', many=True, read_only=True)
-    
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+
     class Meta:
         model = Order
         fields = [
-            'id', 'customer', 'order_date', 'status', 'payment_status',
+            'id', 'customer', 'order_date', 'status', 'status_display', 'payment_status',
             'total_amount', 'delivery_address', 'special_instructions',
             'estimated_delivery_time', 'actual_delivery_time', 'items'
         ]
@@ -168,13 +171,12 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         return order
 
 class DishRatingSerializer(serializers.ModelSerializer):
-    customer = CustomerSerializer(read_only=True)
-    dish = DishSerializer(read_only=True)
-    dish_id = serializers.IntegerField(write_only=True)
-    
+    customer_name = serializers.CharField(source='customer.user.username', read_only=True)
+    dish_name = serializers.CharField(source='dish.name', read_only=True)
+
     class Meta:
         model = DishRating
-        fields = ['id', 'dish', 'dish_id', 'customer', 'rating', 'comment', 'created_at']
+        fields = ['id', 'dish_name', 'customer_name', 'rating', 'comment', 'created_at']
 
 class RestaurantSerializer(serializers.ModelSerializer):
     class Meta:
