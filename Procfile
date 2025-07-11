@@ -1,0 +1,1 @@
+web: gunicorn project.wsgi --timeout 120 --log-level debug 
