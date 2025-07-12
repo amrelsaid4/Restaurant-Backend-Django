@@ -74,11 +74,17 @@ class DishSerializer(serializers.ModelSerializer):
         read_only_fields = ('slug', 'category_name')
 
     def get_image(self, obj):
-        request = self.context.get('request')
         if obj.image and hasattr(obj.image, 'url'):
+            # If the image URL is already absolute (e.g., from Cloudinary), use it directly.
+            if obj.image.url.startswith('http'):
+                return obj.image.url
+            
+            # Otherwise, build an absolute URI from a relative path.
+            request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(obj.image.url)
-            # Fallback for contexts without a request (e.g., shell)
+            
+            # Fallback for contexts without a request.
             return obj.image.url
         return None
 
