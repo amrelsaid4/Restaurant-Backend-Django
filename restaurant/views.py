@@ -448,7 +448,9 @@ class AdminDishViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Failed to delete dish'}, status=500)
 
 class AdminOrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects.prefetch_related(
+        'orderitem_set__dish'
+    ).select_related('customer__user').all()
     serializer_class = OrderSerializer
     permission_classes = [IsRestaurantAdmin]
     

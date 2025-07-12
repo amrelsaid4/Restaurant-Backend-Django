@@ -130,12 +130,11 @@ class CustomerSerializer(serializers.ModelSerializer):
         return sum(order.total_amount for order in orders)
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    dish_name = serializers.CharField(source='dish.name', read_only=True)
-    price = serializers.FloatField(source='dish.price', read_only=True) # Send as float
+    dish = DishSerializer(read_only=True)
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'dish_name', 'quantity', 'price', 'special_instructions']
+        fields = ['id', 'dish', 'quantity', 'price', 'special_instructions']
 
 
 class OrderSerializer(serializers.ModelSerializer):
