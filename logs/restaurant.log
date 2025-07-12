@@ -8718,3 +8718,5 @@ INFO 2025-07-11 11:31:21,860 views 15376 19668 Stripe initialized successfully
 INFO 2025-07-11 11:33:47,694 views 12328 21856 Stripe initialized successfully
 INFO 2025-07-11 14:01:32,885 views 8184 12196 Stripe initialized successfully
 INFO 2025-07-11 14:18:52,077 views 22788 9300 Stripe initialized successfully
+INFO 2025-07-12 09:42:08,981 autoreload 12668 4648 Watching for file changes with StatReloader
+INFO 2025-07-12 09:42:09,487 views 12668 4648 Stripe initialized successfully
